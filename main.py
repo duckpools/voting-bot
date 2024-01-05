@@ -12,7 +12,7 @@ logger = set_logger(__name__)
 if __name__ == "__main__":
     logger.info("Beginning Off-Chain Bot")
 
-    SLEEP_TIME = 30
+    SLEEP_TIME = 2
     last_checked_block = -1
     unlock_wallet()
 
