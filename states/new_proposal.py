@@ -1,4 +1,5 @@
-from consts import minimum_votes, voteResultDenomination, minimumSupport, votingPeriodicity
+from consts import minimum_votes, voteResultDenomination, minimumSupport, votingPeriodicity, proposal_address, \
+    default_box_value
 from helpers.node_calls import sign_tx, box_id_to_binary
 from helpers.platform_functions import get_counter_registers
 from helpers.serializer import encode_long
@@ -29,13 +30,31 @@ def new_proposal_action(counter_box):
             ],
             "fee": 1000000,
             "inputsRaw":
-                [box_id_to_binary(counter_box["boxId"]), "80ade2040008cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b9689c64700001256156a166e98aeca70229d9081d003021492b1296a80f93641eba8a6d5230700"],
+                [box_id_to_binary(counter_box["boxId"])],
             "dataInputsRaw":
                 []
         }
     if is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1]):
-        pass
-        print("passed")
+        counter_tx["requests"].append(
+            {
+                "address": proposal_address,
+                "value": default_box_value,
+                "assets": [
+                    {
+                        "tokenId": counter_tx["requests"][0]["assets"][0]["tokenId"],
+                        "amount": 1,
+                     }
+                ],
+                "registers": {
+                    "R4": encode_long(counter_info["proportions"][0]),
+                    "R5": counter_info["R6"],
+                    "R6": encode_long(counter_tx["requests"][0]["assets"][0]["amount"])
+                }
+            }
+        )
+        counter_tx["requests"][0]["assets"][0]["amount"] -= 1
+        print(counter_tx)
+        print(sign_tx(counter_tx))
     else:
         print(counter_tx)
         print(sign_tx(counter_tx))
