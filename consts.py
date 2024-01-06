@@ -7,5 +7,10 @@ vote_token = "0b9af8712fe8c01aef5a2634a436ffcae8f99b30139975812e07719ea8993c10"
 minimum_votes = 100000
 voteResultDenomination = 1000
 minimumSupport = 500
+votingPeriodicity = 300
+ERROR = -1
+HTTP_NOT_FOUND = 404
+HTTP_OK = 200
+DOUBLE_SPENDING_ATTEMPT = 1409
 
 REQUEST_DELAY = 50
