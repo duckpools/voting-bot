@@ -4,6 +4,8 @@ from consts import counter_address, counter_token
 from helpers.generic_calls import logger
 from helpers.node_calls import current_height
 
+import json
+
 
 def get_counter_box():
     """
@@ -45,5 +47,27 @@ def get_counter_state():
     counter_box = get_counter_box()
     if counter_box:
         current_deadline = int(counter_box["additionalRegisters"]["R4"]["renderedValue"])
-        print(determine_counter_state(current_deadline, current_height()))
+        return determine_counter_state(current_deadline, current_height()), counter_box
+
+
+def get_counter_registers(counter_box):
+    return {
+        "R4": counter_box["additionalRegisters"]["R4"]["serializedValue"],
+        "next_vote_deadline": int(counter_box["additionalRegisters"]["R4"]["renderedValue"]),
+
+        "R5": (counter_box["additionalRegisters"]["R5"]["serializedValue"]),
+        "proportions": json.loads(counter_box["additionalRegisters"]["R5"]["renderedValue"]),
+
+        "R6": counter_box["additionalRegisters"]["R6"]["serializedValue"],
+        "recipient_tree": counter_box["additionalRegisters"]["R6"]["renderedValue"],
+
+        "R7": counter_box["additionalRegisters"]["R7"]["serializedValue"],
+        "total_votes": int(counter_box["additionalRegisters"]["R7"]["renderedValue"]),
+
+        "R8": counter_box["additionalRegisters"]["R8"]["serializedValue"],
+        "initiation_amount": int(counter_box["additionalRegisters"]["R8"]["renderedValue"]),
+
+        "R9": counter_box["additionalRegisters"]["R9"]["serializedValue"],
+        "validation_votes": int(counter_box["additionalRegisters"]["R9"]["renderedValue"]),
+    }
 

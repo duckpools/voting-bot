@@ -1,2 +1,2 @@
-def initiation_action():
+def initiation_action(counter_box):
     return

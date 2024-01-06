@@ -24,15 +24,15 @@ if __name__ == "__main__":
                 unlock_wallet()
                 logger.debug("Block %d found", current_block)
                 curr_height = current_block
-                state = get_counter_state()
+                state, counter_box = get_counter_state()
                 if state == "New Proposal Period":
-                    new_proposal_action()
+                    new_proposal_action(counter_box)
                 elif state == "Vote Validation Period":
-                    validation_action()
+                    validation_action(counter_box)
                 elif state == "Counting Period":
-                    count_action()
+                    count_action(counter_box)
                 elif state == "Before Counting":
-                    initiation_action()
+                    initiation_action(counter_box)
                 else:
                     print("Unknown state")
 

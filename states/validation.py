@@ -1,2 +1,2 @@
-def validation_action():
+def validation_action(counter_box):
     return
