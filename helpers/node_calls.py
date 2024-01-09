@@ -1,9 +1,11 @@
-import requests
 import json
+
+import requests
 
 from client_consts import node_url, node_pass, headers
 from consts import DOUBLE_SPENDING_ATTEMPT, HTTP_OK, ERROR
 from helpers.generic_calls import logger, get_request
+
 
 def unlock_wallet():
     response = requests.post(f"{node_url}/wallet/unlock", json={"pass": node_pass}, headers=headers)
@@ -53,3 +55,9 @@ def sign_tx(tx):
 
 def box_id_to_binary(box_id):
     return json.loads(get_request(node_url + "/utxo/withPool/byIdBinary/" + box_id).text)["bytes"]
+
+def tree_to_address(addr):
+    return json.loads(get_request(node_url + "/utils/ergoTreeToAddress/" + addr).text)["address"]
+
+def box_id_to_contents(box_id):
+    return json.loads(get_request(node_url + "/utxo/withPool/byId/" + box_id).text)
