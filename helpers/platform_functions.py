@@ -1,8 +1,9 @@
 import requests
 
+from client_consts import node_address, node_url, headers
 from helpers.explorer_calls import get_unspent_boxes_by_address
 
-from consts import counter_address, counter_token
+from consts import counter_address, counter_token, fund_address
 from helpers.generic_calls import logger
 from helpers.node_calls import current_height, box_id_to_binary, box_id_to_contents
 
@@ -44,6 +45,7 @@ def determine_counter_state(next_vote_deadline, HEIGHT, no_new_proposal_period=1
         return "New Proposal Period"
     else:
         return "Unknown State"
+
 
 def get_counter_state():
     counter_box = get_counter_box()
@@ -106,13 +108,15 @@ def get_boxes_above_r4_threshold(address, threshold):
         print(f"Error fetching data: {e}")
         return []
 
+
 def node_get_counter_box(box):
     raw_box = box_id_to_binary(box["boxId"])
     box_contents = box_id_to_contents(box["boxId"])
     return box_contents, raw_box
 
+
 def get_voter_votes(vote_boxes, counter_box):
-    currentProportionVote = "05"+counter_box["additionalRegisters"]["R5"][2:-2]
+    currentProportionVote = "05" + counter_box["additionalRegisters"]["R5"][2:-2]
     currentRecipientVote = counter_box["additionalRegisters"]["R6"]
     votesInFavour = 0
     totalVotes = 0
@@ -123,8 +127,10 @@ def get_voter_votes(vote_boxes, counter_box):
         totalVotes += box['assets'][1]["amount"]
 
         # Check for votesInFavour
-        if 'R4' in box['additionalRegisters'] and box['additionalRegisters']['R4']['serializedValue'] == currentProportionVote and \
-           'R5' in box['additionalRegisters'] and box['additionalRegisters']['R5']['serializedValue'] == currentRecipientVote:
+        if 'R4' in box['additionalRegisters'] and box['additionalRegisters']['R4'][
+            'serializedValue'] == currentProportionVote and \
+                'R5' in box['additionalRegisters'] and box['additionalRegisters']['R5'][
+            'serializedValue'] == currentRecipientVote:
             votesInFavour += box['assets'][1]["amount"]
 
         # Check for validationVotesInFavour
@@ -133,3 +139,47 @@ def get_voter_votes(vote_boxes, counter_box):
 
     return votesInFavour, totalVotes, validationVotesInFavour
 
+
+def generate_fund_address(address):
+    script_payload = {
+        "source": f"PK(\"{address}\") && HEIGHT >= -101"
+    }
+    try:
+        # Making the POST request
+        response = requests.post(f"{node_url}/script/p2sAddress", json=script_payload, headers=headers)
+
+        # Checking if the request was successful
+        if response.status_code == 200:
+            # Parse the JSON response
+            parsed_response = json.loads(response.text)
+            return parsed_response["address"]
+
+        else:
+            print(f"Error: Received status code {response.status_code}")
+            print(f"Message: {response.text}")
+            return None
+
+    except requests.RequestException as e:
+        print(f"An error occurred while making the request: {e}")
+        return None
+
+
+def request_funds(amount):
+    if (generate_fund_address(node_address) == fund_address):
+        boxes_under_address = get_unspent_boxes_by_address(fund_address)
+        binaries = []
+        total_value = 0
+        for box in boxes_under_address:
+            total_value += box["value"]
+            binaries.append(box_id_to_binary(box["boxId"]))
+
+
+        change_box = {
+            "address": fund_address,
+            "value": total_value - amount,
+            "assets": [
+            ],
+            "registers": {}
+        }
+        return change_box, binaries
+    return

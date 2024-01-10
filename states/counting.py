@@ -4,7 +4,7 @@ from helpers.platform_functions import get_boxes_above_r4_threshold, node_get_co
 from helpers.serializer import encode_long
 
 
-def try_count_action(counter_box, raw_counter_box=None, height_thresold=0):
+def count_action(counter_box, raw_counter_box=None, height_thresold=0):
     vote_boxes = (get_boxes_above_r4_threshold(user_vote_address, height_thresold))
     if counter_box is None or raw_counter_box is None:
         counter_box, raw_counter_box = node_get_counter_box()
