@@ -32,7 +32,7 @@ if __name__ == "__main__":
                 elif state == "Counting Period":
                     count_action(counter_box)
                 elif state == "Before Counting":
-                    initiation_action(counter_box)
+                    initiation_action(counter_box, initiate=False)
                 else:
                     print("Unknown state")
 

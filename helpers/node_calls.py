@@ -1,4 +1,5 @@
 import json
+import time
 
 import requests
 
@@ -61,3 +62,20 @@ def tree_to_address(addr):
 
 def box_id_to_contents(box_id):
     return json.loads(get_request(node_url + "/utxo/withPool/byId/" + box_id).text)
+
+def sign_and_get_boxids(tx_object):
+    sign_response = sign_tx(tx_object)
+    if sign_response['status'] != 'success':
+        return {"status": "failed", "reason": "Failed to sign the transaction"}
+
+    txId = sign_response['txId']
+    time.sleep(5)
+    response = requests.get(f"{node_url}/transactions/unconfirmed/byTransactionId/{txId}")
+    if response.status_code != 200:
+        return {"status": "failed", "reason": "Failed to retrieve the transaction"}
+
+    # Extract boxIds from the outputs of the transaction
+    transaction = response.json()
+    boxIds = [output['boxId'] for output in transaction['outputs']]
+
+    return {"status": "success", "transaction": transaction, "boxIds": boxIds}

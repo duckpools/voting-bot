@@ -3,7 +3,7 @@ import requests
 from client_consts import node_address, node_url, headers
 from helpers.explorer_calls import get_unspent_boxes_by_address
 
-from consts import counter_address, counter_token, fund_address
+from consts import counter_address, counter_token, fund_address, proposal_address
 from helpers.generic_calls import logger
 from helpers.node_calls import current_height, box_id_to_binary, box_id_to_contents
 
@@ -163,6 +163,29 @@ def generate_fund_address(address):
         print(f"An error occurred while making the request: {e}")
         return None
 
+def generate_initiation_address(address):
+    script_payload = {
+        "source": f"PK(\"{address}\") && HEIGHT >= -201"
+    }
+    try:
+        # Making the POST request
+        response = requests.post(f"{node_url}/script/p2sAddress", json=script_payload, headers=headers)
+
+        # Checking if the request was successful
+        if response.status_code == 200:
+            # Parse the JSON response
+            parsed_response = json.loads(response.text)
+            print(parsed_response["address"])
+            return parsed_response["address"]
+
+        else:
+            print(f"Error: Received status code {response.status_code}")
+            print(f"Message: {response.text}")
+            return None
+
+    except requests.RequestException as e:
+        print(f"An error occurred while making the request: {e}")
+        return None
 
 def request_funds(amount):
     if (generate_fund_address(node_address) == fund_address):
@@ -173,7 +196,6 @@ def request_funds(amount):
             total_value += box["value"]
             binaries.append(box_id_to_binary(box["boxId"]))
 
-
         change_box = {
             "address": fund_address,
             "value": total_value - amount,
@@ -183,3 +205,12 @@ def request_funds(amount):
         }
         return change_box, binaries
     return
+
+def get_proposal_box():
+    potential_boxes = get_unspent_boxes_by_address(proposal_address)
+    print(potential_boxes)
+    for box in potential_boxes:
+        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token:
+            return box
+    logger.warning("Could not find pool box")
+    return None

@@ -36,7 +36,7 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
             ],
             "fee": 1000000,
             "inputsRaw":
-                [box_id_to_binary(counter_box["boxId"])].append(binaries),
+                [box_id_to_binary(counter_box["boxId"])] + binaries,
             "dataInputsRaw":
                 []
         }
