@@ -163,6 +163,30 @@ def generate_fund_address(address):
         print(f"An error occurred while making the request: {e}")
         return None
 
+def generate_paying_address(address):
+    script_payload = {
+        "source": f"PK(\"{address}\") && HEIGHT >= -301"
+    }
+    try:
+        # Making the POST request
+        response = requests.post(f"{node_url}/script/p2sAddress", json=script_payload, headers=headers)
+
+        # Checking if the request was successful
+        if response.status_code == 200:
+            # Parse the JSON response
+            parsed_response = json.loads(response.text)
+            print(parsed_response["address"])
+            return parsed_response["address"]
+
+        else:
+            print(f"Error: Received status code {response.status_code}")
+            print(f"Message: {response.text}")
+            return None
+
+    except requests.RequestException as e:
+        print(f"An error occurred while making the request: {e}")
+        return None
+
 def generate_initiation_address(address):
     script_payload = {
         "source": f"PK(\"{address}\") && HEIGHT >= -201"
