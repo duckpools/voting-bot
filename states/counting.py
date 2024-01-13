@@ -1,15 +1,17 @@
 from consts import user_vote_address, counter_address
 from helpers.node_calls import box_id_to_binary, sign_tx, tree_to_address
-from helpers.platform_functions import get_boxes_above_r4_threshold, node_get_counter_box, get_voter_votes
+from helpers.platform_functions import get_boxes_above_r4_threshold, node_get_counter_box, get_voter_votes, \
+    get_counter_registers
 from helpers.serializer import encode_long
 
 
 def count_action(counter_box, raw_counter_box=None, height_thresold=0):
     vote_boxes = (get_boxes_above_r4_threshold(user_vote_address, height_thresold))
-    if counter_box is None or raw_counter_box is None:
-        counter_box, raw_counter_box = node_get_counter_box()
+    counter_box, raw_counter_box = node_get_counter_box(counter_box)
 
     votesInFavour, totalVotes, validationVotesInFavour = get_voter_votes(vote_boxes, counter_box)
+    print(votesInFavour)
+    print(totalVotes)
 
     counter_tx = \
         {
@@ -64,7 +66,8 @@ def count_action(counter_box, raw_counter_box=None, height_thresold=0):
             ]
         }
     )
-    counter_tx["requests"][0]["registers"]["R5"] = "59809bee02" + encode_long(votesInFavour)[2:]
+    counter_info = get_counter_registers(counter_box, request_explorer=True)
+    counter_tx["requests"][0]["registers"]["R5"] = counter_info["R5"][:-2] + encode_long(votesInFavour)[2:]
     counter_tx["requests"][0]["registers"]["R7"] = encode_long(totalVotes)
     counter_tx["requests"][0]["registers"]["R9"] = encode_long(validationVotesInFavour) + "00"
     counter_tx["fee"] += (len(vote_boxes) - 1) * 1000000

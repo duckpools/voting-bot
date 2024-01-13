@@ -54,7 +54,9 @@ def get_counter_state():
         return determine_counter_state(current_deadline, current_height()), counter_box
 
 
-def get_counter_registers(counter_box):
+def get_counter_registers(counter_box, request_explorer=False):
+    if request_explorer:
+        counter_box = get_counter_box()
     return {
         "R4": counter_box["additionalRegisters"]["R4"]["serializedValue"],
         "next_vote_deadline": int(counter_box["additionalRegisters"]["R4"]["renderedValue"]),
@@ -109,7 +111,9 @@ def get_boxes_above_r4_threshold(address, threshold):
         return []
 
 
-def node_get_counter_box(box):
+def node_get_counter_box(box=None):
+    if not box:
+        box = get_counter_box()
     raw_box = box_id_to_binary(box["boxId"])
     box_contents = box_id_to_contents(box["boxId"])
     return box_contents, raw_box
