@@ -13,6 +13,7 @@ def new_proposal_action(counter_box):
 
 
 def sign_new_proposal_tx(counter_box, counter_info, resp):
+    # resp is the response from request_funds(
     change_box, binaries = resp
     counter_tx = \
         {
@@ -41,7 +42,10 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
                 []
         }
     if is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1]):
-        counter_tx["requests"].append(
+        print("yeee")
+        resp = request_funds(2000000)
+        change_box, binaries = resp
+        proposal_box = (
             {
                 "address": proposal_address,
                 "value": default_box_value,
@@ -59,6 +63,9 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
             }
         )
         counter_tx["requests"][0]["assets"][0]["amount"] -= 1
+        counter_tx["requests"][1] = proposal_box
+        counter_tx["requests"].append(change_box)
+        counter_tx["inputsRaw"] = [counter_tx["inputsRaw"][0]] + binaries
     print(counter_tx)
     print(sign_tx(counter_tx))
 

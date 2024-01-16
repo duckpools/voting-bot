@@ -1,12 +1,13 @@
 from consts import user_vote_address, counter_address
 from helpers.node_calls import box_id_to_binary, sign_tx, tree_to_address
-from helpers.platform_functions import get_boxes_above_r4_threshold, node_get_counter_box, get_voter_votes, \
+from helpers.platform_functions import get_boxes_above_r8_threshold, node_get_counter_box, get_voter_votes, \
     get_counter_registers
 from helpers.serializer import encode_long
 
 
 def count_action(counter_box, raw_counter_box=None, height_thresold=0):
-    vote_boxes = (get_boxes_above_r4_threshold(user_vote_address, height_thresold))
+    vote_boxes = (get_boxes_above_r8_threshold(user_vote_address, height_thresold))
+    print(vote_boxes)
     counter_box, raw_counter_box = node_get_counter_box(counter_box)
 
     votesInFavour, totalVotes, validationVotesInFavour = get_voter_votes(vote_boxes, counter_box)

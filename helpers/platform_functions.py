@@ -78,7 +78,7 @@ def get_counter_registers(counter_box, request_explorer=False):
     }
 
 
-def get_boxes_above_r4_threshold(address, threshold):
+def get_boxes_above_r8_threshold(address, threshold):
     """
     Fetches all unspent boxes for a given address where the Long value in R4 is above a specified threshold.
 
@@ -95,11 +95,11 @@ def get_boxes_above_r4_threshold(address, threshold):
         filtered_boxes = []
 
         for box in boxes:
-            R4_value = box.get('additionalRegisters', {}).get('R4', {}).get('renderedValue')
+            R8_value = box.get('additionalRegisters', {}).get('R8', {}).get('renderedValue')
 
-            if R4_value:
+            if R8_value:
                 # Convert the rendered value to a long integer
-                long_value = int(R4_value)
+                long_value = int(R8_value)
 
                 if long_value > threshold:
                     filtered_boxes.append(box)
@@ -238,7 +238,8 @@ def get_proposal_box():
     potential_boxes = get_unspent_boxes_by_address(proposal_address)
     print(potential_boxes)
     for box in potential_boxes:
-        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token:
+        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token and \
+                box["additionalRegisters"]["R6"]["renderedValue"] == box["assets"][0]["amount"]:
             return box
     logger.warning("Could not find pool box")
     return None

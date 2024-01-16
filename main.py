@@ -25,6 +25,7 @@ if __name__ == "__main__":
                 logger.debug("Block %d found", current_block)
                 curr_height = current_block
                 state, counter_box = get_counter_state()
+                print(state)
                 if state == "New Proposal Period":
                     new_proposal_action(counter_box)
                 elif state == "Vote Validation Period":
@@ -41,6 +42,8 @@ if __name__ == "__main__":
                     )
                 else:
                     print("Unknown state")
+                print("Beginning Treasury Payout")
+
 
         except KeyboardInterrupt:
             raise
