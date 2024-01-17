@@ -7,6 +7,7 @@ from states.counting import count_action
 from states.initiation import initiation_action
 from states.new_proposal import new_proposal_action
 from states.validation import validation_action
+from treasury import process_treasury
 
 logger = set_logger(__name__)
 if __name__ == "__main__":
@@ -43,6 +44,7 @@ if __name__ == "__main__":
                 else:
                     print("Unknown state")
                 print("Beginning Treasury Payout")
+                process_treasury()
 
 
         except KeyboardInterrupt:

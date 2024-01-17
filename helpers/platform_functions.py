@@ -3,7 +3,7 @@ import requests
 from client_consts import node_address, node_url, headers
 from helpers.explorer_calls import get_unspent_boxes_by_address
 
-from consts import counter_address, counter_token, fund_address, proposal_address
+from consts import counter_address, counter_token, fund_address, proposal_address, treasury_address, treasury_nft
 from helpers.generic_calls import logger
 from helpers.node_calls import current_height, box_id_to_binary, box_id_to_contents
 
@@ -234,12 +234,32 @@ def request_funds(amount):
         return change_box, binaries
     return
 
-def get_proposal_box():
+def get_proposal_box(counter_box):
     potential_boxes = get_unspent_boxes_by_address(proposal_address)
     print(potential_boxes)
     for box in potential_boxes:
         if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token and \
-                box["additionalRegisters"]["R6"]["renderedValue"] == box["assets"][0]["amount"]:
+                "R6" in box["additionalRegisters"] and \
+                int(box["additionalRegisters"]["R6"]["renderedValue"]) == int(counter_box["assets"][0]["amount"]):
+            return box
+    logger.warning("Could not find pool box")
+    return None
+
+def get_ripe_proposal_box():
+    potential_boxes = get_unspent_boxes_by_address(proposal_address)
+    print(potential_boxes)
+    for box in potential_boxes:
+        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token and \
+                box["assets"][0]["amount"] == 2:
+            return box
+    logger.warning("Could not find pool box")
+    return None
+
+def get_treasury_box():
+    potential_boxes = get_unspent_boxes_by_address(treasury_address)
+    print(potential_boxes)
+    for box in potential_boxes:
+        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == treasury_nft:
             return box
     logger.warning("Could not find pool box")
     return None
