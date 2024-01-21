@@ -38,7 +38,7 @@ if __name__ == "__main__":
                         counter_box,
                         initiate=False,
                         recipient="0e240008cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b96",
-                        proportion=0.1,
+                        proportion=0.2,
                         amount_funded=200000
                     )
                 else:
