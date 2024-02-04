@@ -1,5 +1,5 @@
 from consts import minimum_votes, voteResultDenomination, minimumSupport, votingPeriodicity, proposal_address, \
-    default_box_value
+    default_box_value, minimumVotesFinal
 from helpers.node_calls import sign_tx, box_id_to_binary
 from helpers.platform_functions import get_counter_registers, request_funds
 from helpers.serializer import encode_long
@@ -41,8 +41,7 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
             "dataInputsRaw":
                 []
         }
-    if is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1]):
-        print("yeee")
+    if is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1], "final"):
         resp = request_funds(2000000)
         change_box, binaries = resp
         proposal_box = (
@@ -70,8 +69,9 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
     print(sign_tx(counter_tx))
 
 
-def is_vote_successful(currentTotalVotes, currentProportionVote):
-    print(currentTotalVotes)
-    print(currentProportionVote)
+def is_vote_successful(currentTotalVotes, currentProportionVote, stage):
+    required_votes = minimumSupport
+    if stage == "final":
+        required_votes = minimumVotesFinal
     return (currentTotalVotes > minimum_votes and
-            currentProportionVote * voteResultDenomination / currentTotalVotes > minimumSupport)
+            currentProportionVote * voteResultDenomination / currentTotalVotes > required_votes)
