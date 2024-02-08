@@ -20,5 +20,6 @@ HTTP_NOT_FOUND = 404
 HTTP_OK = 200
 DOUBLE_SPENDING_ATTEMPT = 1409
 treasury_proportion_denomination = 10000000
+minimumVotesPrelim = 600000000
 
 REQUEST_DELAY = 50

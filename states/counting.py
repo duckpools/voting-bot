@@ -1,4 +1,4 @@
-from consts import user_vote_address, counter_address
+from consts import user_vote_address, counter_address, vote_token
 from helpers.node_calls import box_id_to_binary, sign_tx, tree_to_address
 from helpers.platform_functions import get_boxes_above_r8_threshold, node_get_counter_box, get_voter_votes, \
     get_counter_registers
@@ -61,7 +61,7 @@ def count_action(counter_box, raw_counter_box=None, height_thresold=0):
         {
             "assetsToBurn": [
                 {
-                    "tokenId": "0b9af8712fe8c01aef5a2634a436ffcae8f99b30139975812e07719ea8993c10",
+                    "tokenId": vote_token,
                     "amount": len(vote_boxes)
                 }
             ]

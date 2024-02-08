@@ -22,7 +22,8 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
                         ],
                         "registers": {
                             "R4": encode_long(int(proportion * treasury_proportion_denomination)),
-                            "R5": recipient
+                            "R5": recipient,
+                            "R6": "0e1d54657374207465737420746573742e2054657374696e6720746573742e"
                         }
                     }
                 ],
@@ -39,7 +40,7 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
                 "requests": [
                     {
                         "address": paying_address,
-                        "value": 1000000,
+                        "value": 2000000,
                         "assets": [
                         ],
                         "registers": {
@@ -73,7 +74,7 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
                         }
                     }
                 ],
-                "fee": 1000000,
+                "fee": 2000000,
                 "inputsRaw":
                     [box_id_to_binary(counter_box["boxId"]), box_id_to_binary(paying_boxId)],
                 "dataInputsRaw":
