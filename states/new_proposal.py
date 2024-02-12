@@ -41,7 +41,7 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
             "dataInputsRaw":
                 []
         }
-    if is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1], "final"):
+    if is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1]):
         resp = request_funds(2000000)
         change_box, binaries = resp
         proposal_box = (
@@ -57,7 +57,8 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
                 "registers": {
                     "R4": encode_long(counter_info["proportions"][0]),
                     "R5": counter_info["R6"],
-                    "R6": encode_long(counter_tx["requests"][0]["assets"][0]["amount"])
+                    "R6": encode_long(counter_tx["requests"][0]["assets"][0]["amount"]),
+                    "R7": encode_long(counter_info["next_vote_deadline"])
                 }
             }
         )

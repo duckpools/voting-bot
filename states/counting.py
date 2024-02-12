@@ -67,10 +67,11 @@ def count_action(counter_box, raw_counter_box=None, height_thresold=0):
             ]
         }
     )
+    print(validationVotesInFavour)
     counter_info = get_counter_registers(counter_box, request_explorer=True)
     counter_tx["requests"][0]["registers"]["R5"] = counter_info["R5"][:-2] + encode_long(votesInFavour)[2:]
     counter_tx["requests"][0]["registers"]["R7"] = encode_long(totalVotes)
-    counter_tx["requests"][0]["registers"]["R9"] = encode_long(validationVotesInFavour) + "00"
+    counter_tx["requests"][0]["registers"]["R9"] = encode_long(validationVotesInFavour)
     counter_tx["fee"] += (len(vote_boxes) - 1) * 1000000
     print(counter_tx)
     print(sign_tx(counter_tx))
