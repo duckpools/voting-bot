@@ -36,9 +36,9 @@ if __name__ == "__main__":
                 elif state == "Before Counting":
                     initiation_action(
                         counter_box,
-                        initiate=True,
+                        initiate=False,
                         recipient="0e240008cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b96",
-                        proportion=0.22,
+                        proportion=0.28,
                         amount_funded=200000000
                     )
                 else:
