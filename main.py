@@ -37,7 +37,7 @@ if __name__ == "__main__":
                     initiation_action(
                         counter_box,
                         initiate=False,
-                        recipient="0e240008cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b96",
+                        recipient="0e32100208cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b9604bd9a0cea027300d191a37301",
                         proportion=0.28,
                         amount_funded=200000000
                     )

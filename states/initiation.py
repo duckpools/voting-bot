@@ -55,6 +55,7 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
             print(resp)
             paying_boxId = resp["boxIds"][0]
         counter_info = get_counter_registers(counter_box)
+        print(counter_info)
         counter_tx = \
             {
                 "requests": [
@@ -67,7 +68,7 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
                         "registers": {
                             "R4": counter_info["R4"],
                             "R5": "59" + encode_long(int(proportion * treasury_proportion_denomination))[2:] + "00",
-                            "R6": counter_info["R6"],
+                            "R6": recipient,
                             "R7": "0500",
                             "R8": encode_long(amount_funded),
                             "R9": "0500"
