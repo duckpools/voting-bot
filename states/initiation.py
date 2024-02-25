@@ -23,7 +23,7 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
                         "registers": {
                             "R4": encode_long(int(proportion * treasury_proportion_denomination)),
                             "R5": recipient,
-                            "R6": "0e1d54657374207465737420746573742e2054657374696e6720746573742e"
+                            "R6": "0e0b48656C6C6F20776F726C64"
                         }
                     }
                 ],

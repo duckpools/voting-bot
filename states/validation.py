@@ -4,6 +4,8 @@ from helpers.platform_functions import get_proposal_box, get_counter_registers, 
 
 def validation_action(counter_box):
     proposal_box = get_proposal_box(counter_box)
+    print("heyo")
+    print(proposal_box)
     if not proposal_box:
         return
     counter_info = get_counter_registers(counter_box)
