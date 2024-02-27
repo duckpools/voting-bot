@@ -57,7 +57,7 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
                 "registers": {
                     "R4": encode_long(counter_info["proportions"][0]),
                     "R5": counter_info["R6"],
-                    "R6": encode_long(counter_tx["requests"][0]["assets"][0]["amount"]),
+                    "R6": encode_long(int(counter_tx["requests"][0]["assets"][0]["amount"]) - 1),
                     "R7": encode_long(counter_info["next_vote_deadline"])
                 }
             }
