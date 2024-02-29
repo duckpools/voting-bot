@@ -1,7 +1,9 @@
 from time import sleep
 
+from aidrop_deposit import process_airdrop_deposit
 from helpers.node_calls import unlock_wallet, current_height
 from helpers.platform_functions import get_counter_state
+from helpers.serializer import encode_long_tuple, encode_long
 from logger import set_logger
 from states.counting import count_action
 from states.initiation import initiation_action
@@ -12,7 +14,6 @@ from treasury import process_treasury
 logger = set_logger(__name__)
 if __name__ == "__main__":
     logger.info("Beginning Off-Chain Bot")
-
     SLEEP_TIME = 2
     last_checked_block = -1
     unlock_wallet()
@@ -20,13 +21,13 @@ if __name__ == "__main__":
     while not sleep(SLEEP_TIME):
         try:
             current_block = current_height()
-            if current_block >= last_checked_block + 5:
+            if current_block >= last_checked_block + 2:
                 last_checked_block = current_block
                 unlock_wallet()
                 logger.debug("Block %d found", current_block)
                 curr_height = current_block
                 state, counter_box = get_counter_state()
-                print(state)
+                logger.info("Current State is: %s", state)
                 if state == "New Proposal Period":
                     new_proposal_action(counter_box)
                 elif state == "Vote Validation Period":
@@ -37,13 +38,14 @@ if __name__ == "__main__":
                     initiation_action(
                         counter_box,
                         initiate=False,
-                        recipient="0e32100208cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b9604bd9a0cea027300d191a37301",
-                        proportion=0.28,
+                        recipient="0e240008cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b96",
+                        proportion=0.09,
                         amount_funded=200000000
                     )
                 else:
-                    print("Unknown state")
-                print("Beginning Treasury Payout")
+                    logger.warning("Unknown State")
+                logger.info("Beginning secondary operations")
+                process_airdrop_deposit()
                 process_treasury()
 
 
