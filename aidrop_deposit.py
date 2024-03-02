@@ -1,10 +1,8 @@
 import json
-import math
 
-from consts import treasury_proportion_denomination, counter_token, airdrop_proxy_deposit, airdrop_address
+from consts import airdrop_proxy_deposit, airdrop_address
 from helpers.explorer_calls import get_unspent_boxes_by_address
 from helpers.node_calls import tree_to_address, box_id_to_binary, sign_tx, sign_and_get_boxids
-from helpers.platform_functions import get_ripe_proposal_box, get_treasury_box
 from helpers.serializer import encode_long
 
 
@@ -39,7 +37,9 @@ def process_airdrop_deposit():
                         "value": airdrop_box["value"],
                         "assets": airdrop_assets,
                         "registers": {
-                            "R4": encode_long(currentTotalQuacks + token_amount)
+                            "R4": encode_long(currentTotalQuacks + token_amount),
+                            "R5": airdrop_box["additionalRegisters"]["R5"]["serializedValue"],
+                            "R6": airdrop_box["additionalRegisters"]["R6"]["serializedValue"]
                         }
                     },
                     {
@@ -67,6 +67,7 @@ def process_airdrop_deposit():
             }
 
         tx_id = sign_and_get_boxids(transaction_to_sign)
+        print(tx_id)
 
 
         if tx_id["status"] == "success":

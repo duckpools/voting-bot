@@ -3,7 +3,6 @@ from time import sleep
 from aidrop_deposit import process_airdrop_deposit
 from helpers.node_calls import unlock_wallet, current_height
 from helpers.platform_functions import get_counter_state
-from helpers.serializer import encode_long_tuple, encode_long
 from logger import set_logger
 from states.counting import count_action
 from states.initiation import initiation_action
