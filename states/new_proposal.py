@@ -30,7 +30,7 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
                         "R6": counter_info["R6"],
                         "R7": "0500",
                         "R8": "0500",
-                        "R9": counter_info["R9"]
+                        "R9": "0500"
                     }
                 },
                 change_box
