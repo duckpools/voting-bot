@@ -22,9 +22,9 @@ def validation_action(counter_box):
                     ],
                     "registers": {
                         "R4": counter_info["R4"],
-                        "R5": "590000",
+                        "R5": counter_info["R5"],
                         "R6": counter_info["R6"],
-                        "R7": "0500",
+                        "R7": counter_info["R7"],
                         "R8": "0500",
                         "R9": "0500"
                     }
