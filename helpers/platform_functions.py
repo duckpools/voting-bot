@@ -109,7 +109,7 @@ def get_boxes_above_r8_threshold(address, threshold):
         return filtered_boxes
 
     except requests.RequestException as e:
-        print(f"Error fetching data: {e}")
+        logger.error(f"Error fetching data: {e}")
         return []
 
 
@@ -161,13 +161,14 @@ def generate_fund_address(address):
             return parsed_response["address"]
 
         else:
-            print(f"Error: Received status code {response.status_code}")
-            print(f"Message: {response.text}")
+            logger.error(f"Error: Received status code {response.status_code}")
+            logger.error(f"Message: {response.text}")
             return None
 
     except requests.RequestException as e:
-        print(f"An error occurred while making the request: {e}")
+        logger.error(f"An error occurred while making the request: {e}")
         return None
+
 
 def generate_paying_address(address):
     script_payload = {
@@ -181,17 +182,17 @@ def generate_paying_address(address):
         if response.status_code == 200:
             # Parse the JSON response
             parsed_response = json.loads(response.text)
-            print(parsed_response["address"])
             return parsed_response["address"]
 
         else:
-            print(f"Error: Received status code {response.status_code}")
-            print(f"Message: {response.text}")
+            logger.error(f"Error: Received status code {response.status_code}")
+            logger.error(f"Message: {response.text}")
             return None
 
     except requests.RequestException as e:
-        print(f"An error occurred while making the request: {e}")
+        logger.error(f"An error occurred while making the request: {e}")
         return None
+
 
 def generate_initiation_address(address):
     script_payload = {
@@ -205,17 +206,17 @@ def generate_initiation_address(address):
         if response.status_code == 200:
             # Parse the JSON response
             parsed_response = json.loads(response.text)
-            print(parsed_response["address"])
             return parsed_response["address"]
 
         else:
-            print(f"Error: Received status code {response.status_code}")
-            print(f"Message: {response.text}")
+            logger.error(f"Error: Received status code {response.status_code}")
+            logger.error(f"Message: {response.text}")
             return None
 
     except requests.RequestException as e:
-        print(f"An error occurred while making the request: {e}")
+        logger.error(f"An error occurred while making the request: {e}")
         return None
+
 
 def request_funds(amount):
     if (generate_fund_address(node_address) == fund_address):
@@ -236,9 +237,10 @@ def request_funds(amount):
         return change_box, binaries
     return
 
+
 def get_proposal_box(counter_box):
     potential_boxes = get_unspent_boxes_by_address(proposal_address)
-    print(potential_boxes)
+    logger.info(f"Potential proposal Boxes: {potential_boxes}")
     for box in potential_boxes:
         if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token and \
                 "R6" in box["additionalRegisters"] and \
@@ -247,9 +249,10 @@ def get_proposal_box(counter_box):
     logger.warning("Could not find pool box")
     return None
 
+
 def get_ripe_proposal_box():
     potential_boxes = get_unspent_boxes_by_address(proposal_address)
-    print(potential_boxes)
+    logger.info(f"Potential proposal Boxes: {potential_boxes}")
     for box in potential_boxes:
         if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token and \
                 box["assets"][0]["amount"] == 2:
@@ -257,9 +260,10 @@ def get_ripe_proposal_box():
     logger.warning("Could not find pool box")
     return None
 
+
 def get_treasury_box():
     potential_boxes = get_unspent_boxes_by_address(treasury_address)
-    print(potential_boxes)
+    logger.info(f"Potential treasury Boxes: {potential_boxes}")
     for box in potential_boxes:
         if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == treasury_nft:
             return box

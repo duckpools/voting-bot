@@ -10,17 +10,20 @@ from states.new_proposal import new_proposal_action
 from states.validation import validation_action
 from treasury import process_treasury
 
+# Main Loop Settings
+SLEEP_TIME = 2
+INITIAL_LAST_CHECKED_BLOCK = -1
+NEW_BLOCK_THRESHOLD = 2
+
 logger = set_logger(__name__)
 if __name__ == "__main__":
     logger.info("Beginning Off-Chain Bot")
-    SLEEP_TIME = 2
-    last_checked_block = -1
+    last_checked_block = INITIAL_LAST_CHECKED_BLOCK
     unlock_wallet()
-
     while not sleep(SLEEP_TIME):
         try:
             current_block = current_height()
-            if current_block >= last_checked_block + 2:
+            if current_block >= last_checked_block + NEW_BLOCK_THRESHOLD:
                 last_checked_block = current_block
                 unlock_wallet()
                 logger.debug("Block %d found", current_block)
@@ -38,7 +41,7 @@ if __name__ == "__main__":
                         counter_box,
                         initiate=False,
                         recipient="0e240008cd03dda8fe44b65ff96eb9dd442e6f10aca93f7351e96f2cbb1862c21a9055bc8b96",
-                        proportion=0.09,
+                        proportion=0.06,
                         amount_funded=200000000
                     )
                 else:
@@ -49,7 +52,7 @@ if __name__ == "__main__":
 
 
         except KeyboardInterrupt:
-            raise
-        except Exception:
-            logger.exception("Exception")
+            logger.info("Program terminated by user")
+        except Exception as e:
+            logger.exception("Unexpected error occurred: %s", str(e))
             curr_height -= 1

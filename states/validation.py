@@ -1,11 +1,11 @@
+from collection import logger
 from helpers.node_calls import box_id_to_binary, sign_tx
 from helpers.platform_functions import get_proposal_box, get_counter_registers, request_funds
 
 
 def validation_action(counter_box):
     proposal_box = get_proposal_box(counter_box)
-    print("heyo")
-    print(proposal_box)
+    logger.info(f"Found proposal box: {proposal_box}")
     if not proposal_box:
         return
     counter_info = get_counter_registers(counter_box)
@@ -49,6 +49,6 @@ def validation_action(counter_box):
                 []
         }
     validation_tx["requests"][0]["assets"][0]["amount"] -= 1
-    print(validation_tx)
-    print(sign_tx(validation_tx))
-    return
+    logger.info(f"Signing Transaction: {validation_tx}")
+    tx_result = sign_tx(validation_tx)
+    logger.info(f"Transaction Result: {tx_result}")

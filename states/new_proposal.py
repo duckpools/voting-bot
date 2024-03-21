@@ -1,3 +1,4 @@
+from collection import logger
 from consts import voteResultDenomination, minimumSupport, votingPeriodicity, proposal_address, \
     default_box_value, minimumVotesPrelim
 from helpers.node_calls import sign_tx, box_id_to_binary
@@ -66,8 +67,9 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
         counter_tx["requests"][1] = proposal_box
         counter_tx["requests"].append(change_box)
         counter_tx["inputsRaw"] = [counter_tx["inputsRaw"][0]] + binaries
-    print(counter_tx)
-    print(sign_tx(counter_tx))
+    logger.info(f"Signing Transaction: {counter_tx}")
+    tx_result = sign_tx(counter_tx)
+    logger.info(f"Transaction Result: {tx_result}")
 
 
 def is_vote_successful(currentTotalVotes, currentProportionVote):

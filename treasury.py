@@ -1,5 +1,6 @@
 import math
 
+from collection import logger
 from consts import treasury_proportion_denomination, counter_token
 from helpers.node_calls import tree_to_address, box_id_to_binary, sign_tx
 from helpers.platform_functions import get_ripe_proposal_box, get_treasury_box
@@ -7,14 +8,13 @@ from helpers.platform_functions import get_ripe_proposal_box, get_treasury_box
 
 def process_treasury():
     proposal_box = get_ripe_proposal_box()
-    print(proposal_box)
+    logger.info(f"Found proposal box: {proposal_box}")
     if not proposal_box:
         return
     treasury_box = get_treasury_box()
     proposal_recipient = proposal_box["additionalRegisters"]["R5"]["renderedValue"]
     proposal_proportion = int(proposal_box["additionalRegisters"]["R4"]["renderedValue"]) / treasury_proportion_denomination
-    print(proposal_proportion)
-    print(proposal_recipient)
+    logger.info(f"Attempting to send {proposal_proportion} % of treasury to {proposal_recipient}")
     treasury_final_assets = [{
         "tokenId": treasury_box["assets"][0]["tokenId"],
         "amount": treasury_box["assets"][0]["amount"]
@@ -68,5 +68,6 @@ def process_treasury():
             "dataInputsRaw":
                 []
         }
-    print(treasury_tx)
-    print(sign_tx(treasury_tx))
+    logger.info(f"Signing Transaction: {treasury_tx}")
+    tx_result = sign_tx(treasury_tx)
+    logger.info(f"Transaction Result: {tx_result}")
