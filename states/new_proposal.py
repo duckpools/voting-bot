@@ -1,4 +1,4 @@
-from collection import logger
+import logger
 from consts import voteResultDenomination, minimumSupport, votingPeriodicity, proposal_address, \
     default_box_value, minimumVotesPrelim
 from helpers.node_calls import sign_tx, box_id_to_binary

@@ -1,4 +1,4 @@
-from collection import logger
+import logger
 from helpers.node_calls import box_id_to_binary, sign_tx
 from helpers.platform_functions import get_proposal_box, get_counter_registers, request_funds
 
