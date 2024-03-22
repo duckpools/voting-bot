@@ -1,11 +1,11 @@
-import logger
+from logger import set_logger
 from consts import voteResultDenomination, minimumSupport, votingPeriodicity, proposal_address, \
     default_box_value, minimumVotesPrelim
 from helpers.node_calls import sign_tx, box_id_to_binary
 from helpers.platform_functions import get_counter_registers, request_funds
 from helpers.serializer import encode_long
 
-
+logger = set_logger(__name__)
 def new_proposal_action(counter_box):
     counter_info = get_counter_registers(counter_box)
     resp = request_funds(1000000)

@@ -4,12 +4,12 @@ from client_consts import node_address, node_url, headers
 from helpers.explorer_calls import get_unspent_boxes_by_address
 
 from consts import counter_address, counter_token, fund_address, proposal_address, treasury_address, treasury_nft
-from helpers.generic_calls import logger
+from logger import set_logger
 from helpers.node_calls import current_height, box_id_to_binary, box_id_to_contents
 
 import json
 
-
+logger = set_logger(__name__)
 def get_counter_box():
     """
     Find and return the Ergo pool box in the unspent boxes associated with the specified address.

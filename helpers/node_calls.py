@@ -4,8 +4,10 @@ import time
 import requests
 
 from client_consts import node_url, node_pass, headers
-from consts import DOUBLE_SPENDING_ATTEMPT, HTTP_OK, ERROR
-from helpers.generic_calls import logger, get_request
+from helpers.generic_calls import get_request
+from logger import set_logger
+
+logger = set_logger(__name__)
 
 
 def unlock_wallet():

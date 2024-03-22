@@ -1,11 +1,11 @@
 import math
 
-import logger
+from logger import set_logger
 from consts import treasury_proportion_denomination, counter_token
 from helpers.node_calls import tree_to_address, box_id_to_binary, sign_tx
 from helpers.platform_functions import get_ripe_proposal_box, get_treasury_box
 
-
+logger = set_logger(__name__)
 def process_treasury():
     proposal_box = get_ripe_proposal_box()
     logger.info(f"Found proposal box: {proposal_box}")
