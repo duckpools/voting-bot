@@ -26,11 +26,11 @@ def get_counter_box():
     return None
 
 
-def determine_counter_state(next_vote_deadline, HEIGHT, no_new_proposal_period=100):
+def determine_counter_state(next_vote_deadline, HEIGHT, no_new_proposal_period=1000):
     logger.info("Current Height: %d", HEIGHT)
     logger.info("Current Deadline: %d", next_vote_deadline)
-    pass_proposal_deadline = next_vote_deadline + 20
-    new_proposal_deadline = pass_proposal_deadline + 20
+    pass_proposal_deadline = next_vote_deadline + 360
+    new_proposal_deadline = pass_proposal_deadline + 360
 
     is_before_counting = HEIGHT < next_vote_deadline - no_new_proposal_period
     is_counting_period = next_vote_deadline < HEIGHT < pass_proposal_deadline
