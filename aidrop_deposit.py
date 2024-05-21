@@ -26,8 +26,6 @@ def process_airdrop_deposit():
         airdrop_assets[0]["amount"] = int(airdrop_assets[0]["amount"]) - token_amount
         airdrop_assets[1]["amount"] = int(airdrop_assets[1]["amount"]) + token_amount
 
-        currentTotalQuacks = int(airdrop_box["additionalRegisters"]["R4"]["renderedValue"])
-
 
         transaction_to_sign = \
             {
@@ -37,9 +35,6 @@ def process_airdrop_deposit():
                         "value": airdrop_box["value"],
                         "assets": airdrop_assets,
                         "registers": {
-                            "R4": encode_long(currentTotalQuacks + token_amount),
-                            "R5": airdrop_box["additionalRegisters"]["R5"]["serializedValue"],
-                            "R6": airdrop_box["additionalRegisters"]["R6"]["serializedValue"]
                         }
                     },
                     {
@@ -77,9 +72,6 @@ def process_airdrop_deposit():
                 "value": airdrop_box["value"],
                 "assets": airdrop_assets,
                 "additionalRegisters": {
-                    "R4": {
-                        "renderedValue": currentTotalQuacks + token_amount
-                    }
                 }
             }
         else:

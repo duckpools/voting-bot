@@ -21,6 +21,7 @@ def current_height():
 def sign_tx(tx):
     response = requests.post(node_url + "/wallet/transaction/send", json=tx, headers=headers)
     logger.info("Signing tx: %s", json.dumps(tx))
+    logger.info("Raw TX Response: %s", response.text)
 
     # Check if the response is successful
     if response.status_code == 200:
