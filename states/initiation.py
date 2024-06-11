@@ -2,10 +2,10 @@ from client_consts import node_address
 from consts import quacks_id, treasury_proportion_denomination
 from helpers.node_calls import sign_and_get_boxids, box_id_to_binary, sign_tx
 from helpers.platform_functions import generate_initiation_address, get_counter_registers, generate_paying_address
-from helpers.serializer import encode_long
+from helpers.serializer import encode_long, encode_long_tuple
 
 
-def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1, amount_funded=0, funded_boxId=None, paying_boxId=None):
+def initiation_action(token, counter_box, address, initiate=False, recipient="", proportion=0.1, amount_funded=0, funded_boxId=None, paying_boxId=None):
     if initiate:
         if not funded_boxId:
             fund_initiation_address = generate_initiation_address(node_address)
@@ -54,7 +54,12 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
             resp = sign_and_get_boxids(fund_initiation_tx)
             print(resp)
             paying_boxId = resp["boxIds"][0]
-        counter_info = get_counter_registers(counter_box)
+        counter_info = get_counter_registers(token, counter_box, address)
+        isParams = True
+        r5 = "59" + encode_long(int(proportion * treasury_proportion_denomination))[2:] + "00"
+        if isParams:
+            r5 = encode_long_tuple([0, int(proportion * treasury_proportion_denomination)])
+        print(r5)
         print(counter_info)
         counter_tx = \
             {
@@ -67,7 +72,7 @@ def initiation_action(counter_box, initiate=False, recipient="", proportion=0.1,
                         ],
                         "registers": {
                             "R4": counter_info["R4"],
-                            "R5": "59" + encode_long(int(proportion * treasury_proportion_denomination))[2:] + "00",
+                            "R5": r5,
                             "R6": recipient,
                             "R7": "0500",
                             "R8": encode_long(amount_funded),

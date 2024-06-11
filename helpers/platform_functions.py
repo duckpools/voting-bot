@@ -1,7 +1,7 @@
 import requests
 
 from client_consts import node_address, node_url, headers
-from helpers.explorer_calls import get_unspent_boxes_by_address
+from helpers.explorer_calls import get_unspent_boxes_by_address, get_box_by_id
 
 from consts import counter_address, counter_token, fund_address, proposal_address, treasury_address, treasury_nft
 from logger import set_logger
@@ -10,7 +10,7 @@ from helpers.node_calls import current_height, box_id_to_binary, box_id_to_conte
 import json
 
 logger = set_logger(__name__)
-def get_counter_box():
+def get_counter_box(token, counter_address):
     """
     Find and return the Ergo pool box in the unspent boxes associated with the specified address.
 
@@ -20,17 +20,17 @@ def get_counter_box():
     """
     potential_boxes = get_unspent_boxes_by_address(counter_address)
     for box in potential_boxes:
-        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token:
+        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == token:
             return box
     logger.warning("Could not find pool box")
     return None
 
 
-def determine_counter_state(next_vote_deadline, HEIGHT, no_new_proposal_period=1000):
+def determine_counter_state(next_vote_deadline, HEIGHT, no_new_proposal_period=1000, counting_duration=360, validation_duration=360):
     logger.info("Current Height: %d", HEIGHT)
     logger.info("Current Deadline: %d", next_vote_deadline)
-    pass_proposal_deadline = next_vote_deadline + 360
-    new_proposal_deadline = pass_proposal_deadline + 360
+    pass_proposal_deadline = next_vote_deadline + counting_duration
+    new_proposal_deadline = pass_proposal_deadline + validation_duration
 
     is_before_counting = HEIGHT < next_vote_deadline - no_new_proposal_period
     is_counting_period = next_vote_deadline < HEIGHT < pass_proposal_deadline
@@ -49,16 +49,16 @@ def determine_counter_state(next_vote_deadline, HEIGHT, no_new_proposal_period=1
         return "Unknown State"
 
 
-def get_counter_state():
-    counter_box = get_counter_box()
+def get_counter_state(token, address, no_new_proposal_period=1000, counting_duration=360, validation_duration=360):
+    counter_box = get_counter_box(token, address)
     if counter_box:
         current_deadline = int(counter_box["additionalRegisters"]["R4"]["renderedValue"])
-        return determine_counter_state(current_deadline, current_height()), counter_box
+        return determine_counter_state(current_deadline, current_height(), no_new_proposal_period, counting_duration, validation_duration), counter_box
 
 
-def get_counter_registers(counter_box, request_explorer=False):
+def get_counter_registers(token, counter_box, address, request_explorer=False):
     if request_explorer:
-        counter_box = get_counter_box()
+        counter_box = get_counter_box(token, address)
     return {
         "R4": counter_box["additionalRegisters"]["R4"]["serializedValue"],
         "next_vote_deadline": int(counter_box["additionalRegisters"]["R4"]["renderedValue"]),
@@ -113,16 +113,23 @@ def get_boxes_above_r8_threshold(address, threshold):
         return []
 
 
-def node_get_counter_box(box=None):
+def node_get_counter_box(token, address, box=None):
     if not box:
-        box = get_counter_box()
+        box = get_counter_box(token, address)
     raw_box = box_id_to_binary(box["boxId"])
     box_contents = box_id_to_contents(box["boxId"])
     return box_contents, raw_box
 
 
-def get_voter_votes(vote_boxes, counter_box):
-    currentProportionVote = "05" + counter_box["additionalRegisters"]["R5"][2:-2]
+def get_voter_votes(vote_boxes, counter_box, isParams):
+    currentProportionVote = ""
+    if isParams:
+        ex_counter_box = get_box_by_id(counter_box["boxId"])
+        print(ex_counter_box)
+        currentProportionVote = json.loads(ex_counter_box["additionalRegisters"]["R5"]["renderedValue"])[1]
+        print(currentProportionVote)
+    else:
+        currentProportionVote = "05" + counter_box["additionalRegisters"]["R5"][2:-2]
     currentRecipientVote = counter_box["additionalRegisters"]["R6"]
     votesInFavour = 0
     totalVotes = 0
@@ -133,8 +140,9 @@ def get_voter_votes(vote_boxes, counter_box):
         totalVotes += box['assets'][1]["amount"]
 
         # Check for votesInFavour
-        if 'R4' in box['additionalRegisters'] and box['additionalRegisters']['R4'][
-            'serializedValue'] == currentProportionVote and \
+        if 'R4' in box['additionalRegisters'] and (box['additionalRegisters']['R4'][
+            'serializedValue'] == currentProportionVote or int(box['additionalRegisters']['R4'][
+            'renderedValue']) == currentProportionVote) and \
                 'R5' in box['additionalRegisters'] and box['additionalRegisters']['R5'][
             'serializedValue'] == currentRecipientVote:
             votesInFavour += box['assets'][1]["amount"]

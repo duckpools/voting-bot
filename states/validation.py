@@ -3,12 +3,12 @@ from helpers.node_calls import box_id_to_binary, sign_tx
 from helpers.platform_functions import get_proposal_box, get_counter_registers, request_funds
 
 logger = set_logger(__name__)
-def validation_action(counter_box):
+def validation_action(token, counter_box, address):
     proposal_box = get_proposal_box(counter_box)
     logger.info(f"Found proposal box: {proposal_box}")
     if not proposal_box:
         return
-    counter_info = get_counter_registers(counter_box)
+    counter_info = get_counter_registers(token, counter_box, address)
     resp = request_funds(1000000)
     change_box, binaries = resp
     validation_tx = \

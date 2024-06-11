@@ -1,24 +1,29 @@
-from consts import user_vote_address, counter_address, vote_token
+from consts import user_vote_address, counter_address, vote_token, user_vote_address_params, vote_token_params
 from helpers.node_calls import box_id_to_binary, sign_tx, tree_to_address
 from helpers.platform_functions import get_boxes_above_r8_threshold, node_get_counter_box, get_voter_votes, \
     get_counter_registers
-from helpers.serializer import encode_long
+from helpers.serializer import encode_long, encode_long_tuple
 
 
-def count_action(counter_box, raw_counter_box=None, height_thresold=0):
+def count_action(token, counter_box, address, raw_counter_box=None, height_thresold=0):
+    isParams = True
+    if isParams:
+        user_vote_address = user_vote_address_params
+        vote_token = vote_token_params
     vote_boxes = (get_boxes_above_r8_threshold(user_vote_address, height_thresold))
     print(vote_boxes)
-    counter_box, raw_counter_box = node_get_counter_box(counter_box)
+    counter_box, raw_counter_box = node_get_counter_box(token, address, counter_box )
 
-    votesInFavour, totalVotes, validationVotesInFavour = get_voter_votes(vote_boxes, counter_box)
+    votesInFavour, totalVotes, validationVotesInFavour = get_voter_votes(vote_boxes, counter_box, isParams)
     print(votesInFavour)
     print(totalVotes)
+    print(validationVotesInFavour)
 
     counter_tx = \
         {
             "requests": [
                 {
-                    "address": counter_address,
+                    "address": address,
                     "value": counter_box["value"],
                     "assets": [
                         {
@@ -68,8 +73,13 @@ def count_action(counter_box, raw_counter_box=None, height_thresold=0):
         }
     )
     print(validationVotesInFavour)
-    counter_info = get_counter_registers(counter_box, request_explorer=True)
-    counter_tx["requests"][0]["registers"]["R5"] = counter_info["R5"][:-2] + encode_long(votesInFavour)[2:]
+    counter_info = get_counter_registers(token, counter_box, address, request_explorer=True)
+    # WARNING THIS WILL NOT WORK FOR MULTIPLE RUNS OF COUNTS
+    isParams = True
+    r5 = counter_info["R5"][:-2] + encode_long(votesInFavour)[2:]
+    if isParams:
+        r5 = encode_long_tuple([votesInFavour, 0])
+    counter_tx["requests"][0]["registers"]["R5"] = r5
     counter_tx["requests"][0]["registers"]["R7"] = encode_long(totalVotes)
     counter_tx["requests"][0]["registers"]["R9"] = encode_long(validationVotesInFavour)
     counter_tx["fee"] += (len(vote_boxes) - 1) * 1000000
