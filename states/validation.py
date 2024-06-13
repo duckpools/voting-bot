@@ -1,10 +1,15 @@
+from consts import proposal_address_params, proposal_address, counter_address_params
 from logger import set_logger
 from helpers.node_calls import box_id_to_binary, sign_tx
 from helpers.platform_functions import get_proposal_box, get_counter_registers, request_funds
 
 logger = set_logger(__name__)
 def validation_action(token, counter_box, address):
-    proposal_box = get_proposal_box(counter_box)
+    isParams = counter_address_params == address
+    if isParams:
+        proposal_box = get_proposal_box(counter_box, token, proposal_address_params)
+    else:
+        proposal_box = get_proposal_box(counter_box, token, proposal_address)
     logger.info(f"Found proposal box: {proposal_box}")
     if not proposal_box:
         return

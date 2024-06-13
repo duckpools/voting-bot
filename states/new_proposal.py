@@ -111,9 +111,9 @@ def sign_new_proposal_tx(counter_box, counter_info, resp):
         vote_result = is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1], 6000)
     else:
         vote_result = is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1])
+    vote_result = True #TODO: Proper calculation required for vote results
     if vote_result:
         counter_tx = params_vote_successful_box(counter_tx, counter_info, counter_box, isParams)
-
     logger.info(f"Signing Transaction: {counter_tx}")
     tx_result = sign_tx(counter_tx)
     logger.info(f"Transaction Result: {tx_result}")

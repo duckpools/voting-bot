@@ -246,11 +246,11 @@ def request_funds(amount):
     return
 
 
-def get_proposal_box(counter_box):
-    potential_boxes = get_unspent_boxes_by_address(proposal_address)
+def get_proposal_box(counter_box, token, prop_address):
+    potential_boxes = get_unspent_boxes_by_address(prop_address)
     logger.info(f"Potential proposal Boxes: {potential_boxes}")
     for box in potential_boxes:
-        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == counter_token and \
+        if len(box["assets"]) > 0 and box["assets"][0]["tokenId"] == token and \
                 "R6" in box["additionalRegisters"] and \
                 int(box["additionalRegisters"]["R6"]["renderedValue"]) == int(counter_box["assets"][0]["amount"]):
             return box
