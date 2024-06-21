@@ -82,7 +82,7 @@ def get_counter_registers(token, counter_box, address, request_explorer=False):
 
 def get_boxes_above_r8_threshold(address, threshold):
     """
-    Fetches all unspent boxes for a given address where the Long value in R4 is above a specified threshold.
+    Fetches all unspent boxes for a given address where the Long value in R8 is above a specified threshold.
 
     :param address: The address to fetch boxes for.
     :param threshold: The threshold for the Long value in R4.
@@ -121,15 +121,8 @@ def node_get_counter_box(token, address, box=None):
     return box_contents, raw_box
 
 
-def get_voter_votes(vote_boxes, counter_box, isParams):
-    currentProportionVote = ""
-    if isParams:
-        ex_counter_box = get_box_by_id(counter_box["boxId"])
-        print(ex_counter_box)
-        currentProportionVote = json.loads(ex_counter_box["additionalRegisters"]["R5"]["renderedValue"])[1]
-        print(currentProportionVote)
-    else:
-        currentProportionVote = "05" + counter_box["additionalRegisters"]["R5"][2:-2]
+def get_voter_votes(vote_boxes, counter_box):
+    currentProportionVote = "05" + counter_box["additionalRegisters"]["R5"][2:-2]
     currentRecipientVote = counter_box["additionalRegisters"]["R6"]
     votesInFavour = 0
     totalVotes = 0
@@ -143,6 +136,32 @@ def get_voter_votes(vote_boxes, counter_box, isParams):
         if 'R4' in box['additionalRegisters'] and (box['additionalRegisters']['R4'][
             'serializedValue'] == currentProportionVote or int(box['additionalRegisters']['R4'][
             'renderedValue']) == currentProportionVote) and \
+                'R5' in box['additionalRegisters'] and box['additionalRegisters']['R5'][
+            'serializedValue'] == currentRecipientVote:
+            votesInFavour += box['assets'][1]["amount"]
+
+        # Check for validationVotesInFavour
+        if 'R9' in box['additionalRegisters'] and int(box['additionalRegisters']['R9']['renderedValue']) == 1:
+            validationVotesInFavour += box['assets'][1]["amount"]
+
+    return votesInFavour, totalVotes, validationVotesInFavour
+
+
+def get_voter_votes_params(vote_boxes, counter_box):
+    ex_counter_box = get_box_by_id(counter_box["boxId"])
+    currentProportionVote = json.loads(ex_counter_box["additionalRegisters"]["R5"]["renderedValue"])[1:]
+    currentRecipientVote = counter_box["additionalRegisters"]["R6"]
+    votesInFavour = 0
+    totalVotes = 0
+    validationVotesInFavour = 0
+
+    for box in vote_boxes:
+        # Update totalVotes
+        totalVotes += box['assets'][1]["amount"]
+
+        # Check for votesInFavour
+        if 'R4' in box['additionalRegisters'] and json.loads(box['additionalRegisters']['R4'][
+            'renderedValue']) == currentProportionVote and \
                 'R5' in box['additionalRegisters'] and box['additionalRegisters']['R5'][
             'serializedValue'] == currentRecipientVote:
             votesInFavour += box['assets'][1]["amount"]

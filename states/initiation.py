@@ -5,9 +5,12 @@ from helpers.platform_functions import generate_initiation_address, get_counter_
 from helpers.serializer import encode_long, encode_long_tuple
 
 
-def initiation_action(token, counter_box, address, initiate=False, recipient="", proportion=0.1, amount_funded=0, funded_boxId=None, paying_boxId=None):
+def initiation_action(token, counter_box, address, isParams, initiate=False, recipient="", params= [0], proportion=0.0001, amount_funded=0, funded_boxId=None, paying_boxId=None):
     if initiate:
         if not funded_boxId:
+            r4 = encode_long(int(proportion * treasury_proportion_denomination))
+            if isParams:
+                r4 = encode_long_tuple(params)
             fund_initiation_address = generate_initiation_address(node_address)
             fund_initiation_tx = {
                 "requests": [
@@ -21,7 +24,7 @@ def initiation_action(token, counter_box, address, initiate=False, recipient="",
                             }
                         ],
                         "registers": {
-                            "R4": encode_long(int(proportion * treasury_proportion_denomination)),
+                            "R4": r4,
                             "R5": recipient,
                             "R6": "0e9d02466f726d616c2054726561737572792050726f706f73616c2023303030320a0a50726f706f73616c3a20546f2073656e6420392e3525206f662074686520747265617375727920746f206475636b44726f702c2074686520515541434b532061697264726f7020616464726573732e2049662070617373656420392e3525206f662074726561737572792066756e64732077696c6c2062652073656e7420746f20746865206475636b44726f702061697264726f7020616464726573732c207769746820616e2061697264726f7020626c6f636b20686569676874206f6620313237323535312e205468652061697264726f702077696c6c20626520636f6e647563746564206f6e2061697264726f702e6475636b706f6f6c732e696f"
                         }
@@ -55,12 +58,9 @@ def initiation_action(token, counter_box, address, initiate=False, recipient="",
             print(resp)
             paying_boxId = resp["boxIds"][0]
         counter_info = get_counter_registers(token, counter_box, address)
-        isParams = True
         r5 = "59" + encode_long(int(proportion * treasury_proportion_denomination))[2:] + "00"
         if isParams:
-            r5 = encode_long_tuple([0, int(proportion * treasury_proportion_denomination)])
-        print(r5)
-        print(counter_info)
+            r5 = encode_long_tuple([0] + params)
         counter_tx = \
             {
                 "requests": [

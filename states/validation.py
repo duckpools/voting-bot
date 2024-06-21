@@ -4,8 +4,7 @@ from helpers.node_calls import box_id_to_binary, sign_tx
 from helpers.platform_functions import get_proposal_box, get_counter_registers, request_funds
 
 logger = set_logger(__name__)
-def validation_action(token, counter_box, address):
-    isParams = counter_address_params == address
+def validation_action(token, counter_box, address, isParams):
     if isParams:
         proposal_box = get_proposal_box(counter_box, token, proposal_address_params)
     else:

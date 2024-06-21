@@ -18,24 +18,26 @@ INITIAL_LAST_CHECKED_BLOCK = -1
 NEW_BLOCK_THRESHOLD = 5
 
 
-def handle_state(state, counter_token, counter_box, counter_address, isInitiate):
+def handle_state(state, counter_token, counter_box, counter_address, isInitiate, isParams):
     actions = {
         "New Proposal Period": new_proposal_action,
         "Vote Validation Period": validation_action,
         "Counting Period": count_action,
-        "Before Counting": lambda token, box, address: initiation_action(
+        "Before Counting": lambda token, box, address, isParams: initiation_action(
             token,
             box,
             address,
+            isParams,
             initiate=isInitiate,
             recipient="0e2e100208cd03f0dbaa5d7b67fac2130f5cb7166bcf4b19bee4ba88567830935d242b972fef300101ea027300d17301",
+            params=[1, 300, 400, 900],
             proportion=0.0001,
-            amount_funded=200000000
+            amount_funded=250000000
         )
     }
     action = actions.get(state)
     if action:
-        action(counter_token, counter_box, counter_address)
+        action(counter_token, counter_box, counter_address, isParams)
     else:
         logger.warning("Unknown State: %s", state)
 
@@ -57,9 +59,9 @@ if __name__ == "__main__":
                 logger.info("Treasury State is: %s", state)
                 logger.info("Params State is: %s", p_state)
                 logger.info("Begin work on Treasury...")
-                handle_state(state, counter_token, counter_box, counter_address, False)
+                handle_state(state, counter_token, counter_box, counter_address, False, False)
                 logger.info("Begin work on params...")
-                handle_state(p_state, counter_token_params, p_counter_box, counter_address_params, True)
+                handle_state(p_state, counter_token_params, p_counter_box, counter_address_params, True, True)
                 if (process_treasury_bool):
                     logger.info("Beginning secondary operations (Treasury)...")
                     process_treasury()
