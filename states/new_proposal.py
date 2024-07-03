@@ -108,7 +108,7 @@ def sign_new_proposal_tx(counter_box, counter_info, resp, isParams):
         }
 
     if isParams:
-        vote_result = is_vote_successful(counter_info["total_votes"], counter_info["proportions"][0], minVotesPrelim=6000)
+        vote_result = is_vote_successful(counter_info["total_votes"], counter_info["proportions"][0])
     else:
         vote_result = is_vote_successful(counter_info["total_votes"], counter_info["proportions"][1])
     if vote_result:
