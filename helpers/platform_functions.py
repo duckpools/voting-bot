@@ -4,6 +4,7 @@ from client_consts import node_address, node_url, headers
 from helpers.explorer_calls import get_unspent_boxes_by_address, get_box_by_id
 
 from consts import counter_address, counter_token, fund_address, proposal_address, treasury_address, treasury_nft
+from helpers.serializer import read_explorer_collcollBytes
 from logger import set_logger
 from helpers.node_calls import current_height, box_id_to_binary, box_id_to_contents
 
@@ -59,25 +60,48 @@ def get_counter_state(token, address, no_new_proposal_period=1000, counting_dura
 def get_counter_registers(token, counter_box, address, request_explorer=False):
     if request_explorer:
         counter_box = get_counter_box(token, address)
-    return {
-        "R4": counter_box["additionalRegisters"]["R4"]["serializedValue"],
-        "next_vote_deadline": int(counter_box["additionalRegisters"]["R4"]["renderedValue"]),
+    if address == counter_address:
+        return {
+            "R4": counter_box["additionalRegisters"]["R4"]["serializedValue"],
+            "next_vote_deadline": int(counter_box["additionalRegisters"]["R4"]["renderedValue"]),
 
-        "R5": (counter_box["additionalRegisters"]["R5"]["serializedValue"]),
-        "proportions": json.loads(counter_box["additionalRegisters"]["R5"]["renderedValue"]),
+            "R5": (counter_box["additionalRegisters"]["R5"]["serializedValue"]),
+            "proportions": json.loads(counter_box["additionalRegisters"]["R5"]["renderedValue"]),
 
-        "R6": counter_box["additionalRegisters"]["R6"]["serializedValue"],
-        "recipient_tree": counter_box["additionalRegisters"]["R6"]["renderedValue"],
+            "R6": counter_box["additionalRegisters"]["R6"]["serializedValue"],
+            "recipient_tree": counter_box["additionalRegisters"]["R6"]["renderedValue"],
 
-        "R7": counter_box["additionalRegisters"]["R7"]["serializedValue"],
-        "total_votes": int(counter_box["additionalRegisters"]["R7"]["renderedValue"]),
+            "R7": counter_box["additionalRegisters"]["R7"]["serializedValue"],
+            "total_votes": int(counter_box["additionalRegisters"]["R7"]["renderedValue"]),
 
-        "R8": counter_box["additionalRegisters"]["R8"]["serializedValue"],
-        "initiation_amount": int(counter_box["additionalRegisters"]["R8"]["renderedValue"]),
+            "R8": counter_box["additionalRegisters"]["R8"]["serializedValue"],
+            "initiation_amount": int(counter_box["additionalRegisters"]["R8"]["renderedValue"]),
 
-        "R9": counter_box["additionalRegisters"]["R9"]["serializedValue"],
-        "validation_votes": int(counter_box["additionalRegisters"]["R9"]["renderedValue"]),
-    }
+            "R9": counter_box["additionalRegisters"]["R9"]["serializedValue"],
+            "validation_votes": int(counter_box["additionalRegisters"]["R9"]["renderedValue"]),
+        }
+    else:
+        R7_array = json.loads(counter_box["additionalRegisters"]["R7"]["renderedValue"])
+        print(R7_array)
+        return {
+            "R4": counter_box["additionalRegisters"]["R4"]["serializedValue"],
+            "next_vote_deadline": int(counter_box["additionalRegisters"]["R4"]["renderedValue"]),
+
+            "R5": (counter_box["additionalRegisters"]["R5"]["serializedValue"]),
+            "proportions": json.loads(counter_box["additionalRegisters"]["R5"]["renderedValue"]),
+
+            "R6": counter_box["additionalRegisters"]["R6"]["serializedValue"],
+            "recipient_tree": counter_box["additionalRegisters"]["R6"]["renderedValue"],
+
+            "R7": counter_box["additionalRegisters"]["R7"]["serializedValue"],
+            "total_votes": R7_array[0],
+            "initation_amount": R7_array[1],
+            "validation_votes": R7_array[2],
+
+            "R8": counter_box["additionalRegisters"]["R8"]["serializedValue"],
+            "byteDataArray": json.loads(counter_box["additionalRegisters"]["R7"]["renderedValue"]),
+        }
+
 
 
 def get_boxes_above_r8_threshold(address, threshold):
@@ -147,6 +171,15 @@ def get_voter_votes(vote_boxes, counter_box):
     return votesInFavour, totalVotes, validationVotesInFavour
 
 
+def agrees_with_bytes(counter_box, vote_box):
+    try:
+        byte_data = read_explorer_collcollBytes(counter_box["additionalRegisters"]["R8"]["renderedValue"])
+        vote_box_data = read_explorer_collcollBytes(vote_box["additionalRegisters"]["R9"]["renderedValue"])
+        return byte_data == vote_box_data[1:]
+    except Exception:
+        return False
+
+
 def get_voter_votes_params(vote_boxes, counter_box):
     ex_counter_box = get_box_by_id(counter_box["boxId"])
     currentProportionVote = json.loads(ex_counter_box["additionalRegisters"]["R5"]["renderedValue"])[1:]
@@ -163,11 +196,11 @@ def get_voter_votes_params(vote_boxes, counter_box):
         if 'R4' in box['additionalRegisters'] and json.loads(box['additionalRegisters']['R4'][
             'renderedValue']) == currentProportionVote and \
                 'R5' in box['additionalRegisters'] and box['additionalRegisters']['R5'][
-            'serializedValue'] == currentRecipientVote:
+            'serializedValue'] == currentRecipientVote and agrees_with_bytes(ex_counter_box, box):
             votesInFavour += box['assets'][1]["amount"]
 
         # Check for validationVotesInFavour
-        if 'R9' in box['additionalRegisters'] and int(box['additionalRegisters']['R9']['renderedValue']) == 1:
+        if 'R9' in box['additionalRegisters'] and read_explorer_collcollBytes(box['additionalRegisters']['R9']['renderedValue'])[0] == "0a":
             validationVotesInFavour += box['assets'][1]["amount"]
 
     return votesInFavour, totalVotes, validationVotesInFavour

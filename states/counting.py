@@ -14,7 +14,7 @@ def count_action(token, counter_box, address, isParams, raw_counter_box=None, he
     if isParams:
         vote_address = user_vote_address_params
         vote_token_id = vote_token_params
-    vote_boxes = (get_boxes_above_r8_threshold(vote_address, height_thresold))
+    vote_boxes = (get_boxes_above_r8_threshold(vote_address, 1303407))
     counter_box, raw_counter_box = node_get_counter_box(token, address, counter_box )
     if (isParams):
         votesInFavour, totalVotes, validationVotesInFavour = get_voter_votes_params(vote_boxes, counter_box)
@@ -80,17 +80,19 @@ def count_action(token, counter_box, address, isParams, raw_counter_box=None, he
     )
     print(validationVotesInFavour)
     counter_info = get_counter_registers(token, counter_box, address, request_explorer=True)
-    # WARNING THIS WILL NOT WORK FOR MULTIPLE RUNS OF COUNTS
-    r5 = counter_info["R5"][:-2] + encode_long(votesInFavour)[2:]
+    # TODO: Multiple Count Runs logic
     if isParams:
         explorer_counter_box = get_box_by_id(counter_box["boxId"])
         current_r5_rendered = json.loads(explorer_counter_box["additionalRegisters"]["R5"]["renderedValue"])
         current_agreeance = current_r5_rendered[0]
         r5_array = [current_agreeance + votesInFavour] + current_r5_rendered[1:]
-        r5 = encode_long_tuple(r5_array)
-    counter_tx["requests"][0]["registers"]["R5"] = r5
-    counter_tx["requests"][0]["registers"]["R7"] = encode_long(totalVotes)
-    counter_tx["requests"][0]["registers"]["R9"] = encode_long(validationVotesInFavour)
+        initiation_amount = json.loads(explorer_counter_box["additionalRegisters"]["R5"]["renderedValue"])[1]
+        counter_tx["requests"][0]["registers"]["R5"] = encode_long_tuple(r5_array)
+        counter_tx["requests"][0]["registers"]["R7"] = encode_long_tuple([totalVotes, initiation_amount, validationVotesInFavour])
+    else:
+        counter_tx["requests"][0]["registers"]["R5"] = counter_info["R5"][:-2] + encode_long(votesInFavour)[2:]
+        counter_tx["requests"][0]["registers"]["R7"] = encode_long(totalVotes)
+        counter_tx["requests"][0]["registers"]["R9"] = encode_long(validationVotesInFavour)
     counter_tx["fee"] += (len(vote_boxes) - 1) * 1000000
     print(counter_tx)
     print(sign_tx(counter_tx))

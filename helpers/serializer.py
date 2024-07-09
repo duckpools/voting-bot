@@ -65,3 +65,23 @@ def encode_int_tuple(arr):
     for long in arr:
         res += bad_encode_long(long)
     return res
+
+
+def bad_encode_coll_coll_byte(arr):
+    res = "1a0" + str(len(arr))
+    for item in arr:
+        res+= "20" + item
+    return res
+
+
+def read_explorer_collcollBytes(rendered_value):
+    # Remove the brackets
+    cleaned_value = rendered_value.strip('[]')
+
+    # Split by commas to get individual hex strings
+    hex_strings = cleaned_value.split(',')
+
+    # Remove any extra spaces around hex strings
+    hex_strings = [hex_str.strip() for hex_str in hex_strings]
+
+    return hex_strings

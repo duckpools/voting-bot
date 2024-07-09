@@ -1,4 +1,5 @@
 from consts import proposal_address_params, proposal_address, counter_address_params
+from helpers.serializer import encode_long_tuple
 from logger import set_logger
 from helpers.node_calls import box_id_to_binary, sign_tx
 from helpers.platform_functions import get_proposal_box, get_counter_registers, request_funds
@@ -42,6 +43,8 @@ def validation_action(token, counter_box, address, isParams):
                     "registers": {
                         "R4": proposal_box["additionalRegisters"]["R4"]["serializedValue"],
                         "R5": proposal_box["additionalRegisters"]["R5"]["serializedValue"],
+                        "R6": "0500",
+                        "R7": "0500"
                     }
                 },
                 change_box
@@ -52,6 +55,10 @@ def validation_action(token, counter_box, address, isParams):
             "dataInputsRaw":
                 []
         }
+    if isParams:
+        validation_tx["requests"][0]["registers"]["R8"] = counter_info["R8"]
+        validation_tx["requests"][1]["registers"]["R8"] = proposal_box["additionalRegisters"]["R8"]["serializedValue"]
+        validation_tx["requests"][0]["registers"]["R7"] = encode_long_tuple([counter_info["total_votes"], 0, 0])
     validation_tx["requests"][0]["assets"][0]["amount"] -= 1
     logger.info(f"Signing Transaction: {validation_tx}")
     tx_result = sign_tx(validation_tx)
